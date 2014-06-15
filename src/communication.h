@@ -8,7 +8,9 @@ namespace penguins {
 
 enum class Tag {
   kRequest,
-  kReply
+  kReply,
+  kRelease,
+  kAcquire
 };
 
 class Communication {
