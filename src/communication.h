@@ -2,15 +2,36 @@
 #define COMMUNICATION_H_
 
 #include <mpi.h>
+#include "message.h"
 
 namespace penguins {
 
+enum class Tag {
+  kRequest,
+  kReply
+};
+
 class Communication {
  public:
-  static int Rank();
-  static int Size();
+  void Receive(int source, Message* message, const Tag& tag);
+  void ReceiveAll(Message* message, const Tag& tag);
+
+  void Send(int dest, Message& message, const Tag& tag);
+  void SendAll(Message& message, const Tag& tag);
+
+  bool Test(int source, const Tag& tag);
+  bool TestAll(const Tag& tag);
+
+  int Rank();
+  int Size();
 
  private:
+  MPI::Request* Request(int source, const Tag& tag) { return &requests_[int(tag)][source]; }
+
+  static const int kMaxTags = 4;
+  static const int kMaxProcesses = 100;
+
+  MPI::Request requests_[kMaxTags][kMaxProcesses];
 };
 
 }  // namespace penguins

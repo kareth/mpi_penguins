@@ -5,7 +5,7 @@ CXX = mpic++
 LD = mpic++
 AR = ar
 
-CXX_FLAGS = -Wall -Wextra
+CXX_FLAGS = -Wall -Wextra -std=c++0x
 LD_FLAGS =
 AR_FLAGS = rs
 
@@ -13,7 +13,7 @@ OBJ_DIR = bin
 SRC_DIR = src
 
 MAIN_SRCS = main.cpp
-ZOO_LIB_SRCS = zoo.cpp communication.cpp
+ZOO_LIB_SRCS = zoo.cpp communication.cpp message.cpp
 
 MAIN_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(MAIN_SRCS:.cpp=.o)))
 ZOO_LIB_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(ZOO_LIB_SRCS:.cpp=.o)))

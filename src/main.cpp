@@ -5,7 +5,6 @@
 #include "zoo.h"
 
 int main(int argc, char** argv) {
-  int rank, size;
   MPI_Init(&argc, &argv);
 
   penguins::Zoo zoo;
