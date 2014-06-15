@@ -29,8 +29,8 @@ void Zoo::Run() {
       usleep(1000000);  // 1s
       Message rec;
       communication_.Receive(0, &rec, Tag::kRequest);
-      printf("%d process received message from %d\n",
-          communication_.Rank(), rec.field(Field::kRank));
+      printf("%d process received message from %d = %d\n",
+          communication_.Rank(), rec.field(Field::kRank), rec.field(Field::kTimestamp));
     }
   }
 }
