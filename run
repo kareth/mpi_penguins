@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ]; then
+  echo "usage: ./run number_of_processes"
+else
+  mpirun -default-hostfile none -np $1 ./bin/main
+fi
