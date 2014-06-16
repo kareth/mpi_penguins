@@ -43,7 +43,7 @@ class Zoo {
 
   int rank_;
 
-  int resource_amount_[ResourceTypeCount] = { Configuration::MaxShips / 2, Configuration::MaxPorts / 2 };
+  int resource_amount_[ResourceTypeCount] = { Configuration::MaxShips, Configuration::MaxPorts };
   int resource_timestamp_[ResourceTypeCount];
 
   Transport transport_;

@@ -9,6 +9,8 @@ namespace penguins {
 void Zoo::Run() {
   rank_ = communication_.Rank();
 
+  srand(rand() + rank_);
+
   communication_.ReceiveAll(requests_, Tag::kRequest);
   communication_.ReceiveAll(requests_, Tag::kReply);
   MainLoop();

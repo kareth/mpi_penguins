@@ -18,7 +18,7 @@ class SnowManager {
   void Received() { waiting_ = false; }
 
   void Next() {
-    required_ships_ = required_ports_ = (rand() % Configuration::MaxShips + 1) / 2;
+    required_ships_ = required_ports_ = (rand() % Configuration::MaxShips + 2) / 2;
   }
 
  private:
