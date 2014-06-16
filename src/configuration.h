@@ -7,6 +7,10 @@ namespace Configuration {
   const int MaxShips = 15;
   const int MaxPorts = 10;
 
+  const int TransportTime = 1;
+  const int MinUnloadingTime = 1;
+  const int MaxUnloadingTime = 3;
+
   const int Years = 4;
 }
 

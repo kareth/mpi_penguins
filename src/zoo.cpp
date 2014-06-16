@@ -19,9 +19,6 @@ void Zoo::MainLoop() {
     ProcessChanges();
     ProceedWithTransport();    // Once we got access to ships
 
-    // unloading
-    usleep(100000 * (rand() % 10 + 1));
-
     ReplyToRequests();
   }
 }
@@ -145,11 +142,12 @@ void Zoo::ProceedWithTransport() {
     }
   }
   else if (transport_.WaitingForUnload()) {
-    printf("Zoo no. %d got transport of %d ships of snow! Releasing.\n", rank_, snow_manager_.RequiredShips());
-
-    Release(snow_manager_.RequiredShips(), ResourceType::kShip);
-    Release(snow_manager_.RequiredPorts(), ResourceType::kPort);
-    transport_.SetIdle();
+    if (transport_.Unloaded()) {
+      printf("Zoo no. %d got transport of %d ships of snow! Releasing.\n", rank_, snow_manager_.RequiredShips());
+      Release(snow_manager_.RequiredShips(), ResourceType::kShip);
+      Release(snow_manager_.RequiredPorts(), ResourceType::kPort);
+      transport_.SetIdle();
+    }
   }
 }
 

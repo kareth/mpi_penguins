@@ -13,20 +13,23 @@ enum class Status {
 
 class Transport {
  public:
-
   void WaitForPorts() { status_ = Status::kPort; }
   void WaitForShips() { status_ = Status::kShips; }
-  void StartTransport() { status_ = Status::kTransport; }
-  void StartUnload() { status_ = Status::kUnload; }
-  void SetIdle() { status_ = Status::kIdle; }
+  void StartTransport() { status_ = Status::kTransport; transporting_started_ = time(nullptr); }
+  void StartUnload() { status_ = Status::kUnload; unloading_started_ = time(nullptr); }
+  void SetIdle() {
+    status_ = Status::kIdle;
+    unloading_time_ = rand() % (Configuration::MaxUnloadingTime - Configuration::MinUnloadingTime + 1)
+      + Configuration::MinUnloadingTime;
+  }
 
   // Count transport time from StartTransport to now
   // and compare it with parametrized constant
-  bool Arrived() { return true; }
+  bool Arrived() { return time(nullptr) - transporting_started_ > Configuration::TransportTime; }
 
   // Count unload time from StartUnload to now
   // and compare it with preset random value
-  bool Unloaded() { return true; }
+  bool Unloaded() { return time(nullptr) - unloading_started_ > unloading_time_; }
 
   bool WaitingForShips() { return status_ == Status::kShips; }
   bool WaitingForUnload() { return status_ == Status::kUnload; }
@@ -37,6 +40,9 @@ class Transport {
 
  private:
   Status status_ = Status::kIdle;
+  time_t transporting_started_;
+  time_t unloading_started_;
+  time_t unloading_time_ = 1;
 };
 
 }  // namespace penguins
