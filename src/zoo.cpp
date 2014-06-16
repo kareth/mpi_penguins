@@ -26,7 +26,7 @@ void Zoo::MainLoop() {
     ProceedWithTransport();    // Once we got access to ships
 
     ship_.ReplyToRequests(communication_);
-//    port_.ReplyToRequests(communication_);
+    port_.ReplyToRequests(communication_);
   }
 }
 
@@ -41,7 +41,6 @@ void Zoo::ProceedWithTransport() {
   else if (transport_.WaitingForShips()) {
     if (communication_.TestAll(Tag::kReply)) {
       ship_.ProcessChanges(communication_);
-
       // Important:
       // If there is not enough ships, just wait, they will release soon
       if (ship_.amount_ < snow_manager_.RequiredShips())

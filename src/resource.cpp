@@ -35,11 +35,14 @@ void Resource::ProcessChanges(Communication& communication) {
 
 void Resource::ReplyToRequests(Communication& communication) {
   for (int i = 0; i < communication.Size(); i++) {
-    if (i != communication.Rank() && communication.Test(i, Tag::kRequest)) {
+    if (i != communication.Rank() && communication.Test(i, Tag::kRequest) && requests_[i].field(Field::kType) == type_) {
+      printf("%d received request from %d\n", communication.Rank(), requests_[i].field(Field::kRank));
       if (ShouldWaitFor(requests_[i], communication)) {
+        printf("%d Sending ACC to %d\n", communication.Rank(), requests_[i].field(Field::kRank));
         Message reply(communication.Rank(), requests_[i].field(Field::kType));
         communication.Send(requests_[i].field(Field::kRank), reply, Tag::kReply);
       } else {
+        printf("%d has priority over %d\n", communication.Rank(), requests_[i].field(Field::kRank));
         queue_.insert(requests_[i]);
       }
 
@@ -55,6 +58,7 @@ void Resource::ReplyQueuedMessages(Communication& communication) {
 
     Message reply(communication.Rank(), msg.field(Field::kType));
     communication.Send(msg.field(Field::kRank), reply, Tag::kReply);
+    printf("%d Sending ACC to %d\n", communication.Rank(), msg.field(Field::kRank));
   }
 }
 
