@@ -14,8 +14,10 @@ enum class Status {
 class Transport {
  public:
 
+  void WaitForPorts() { status_ = Status::kPort; }
   void WaitForShips() { status_ = Status::kShips; }
   void StartTransport() { status_ = Status::kTransport; }
+  void StartUnload() { status_ = Status::kUnload; }
   void SetIdle() { status_ = Status::kIdle; }
 
   // Count transport time from StartTransport to now

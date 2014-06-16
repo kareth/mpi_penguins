@@ -84,9 +84,8 @@ bool Zoo::ShouldWaitFor(const Message& message) {
 void Zoo::ProceedWithTransport() {
   if (transport_.Idle()) {
     snow_manager_.Next();
-    printf("Zoo #%d requests:\n  %d ships\n  %d ports\n", rank_, snow_manager_.RequiredShips(), snow_manager_.RequiredPorts());
+    printf("Zoo no. %d requests %d ship\n", rank_, snow_manager_.RequiredShips());
     Request(snow_manager_.RequiredShips(), ResourceType::kShip);
-    Request(snow_manager_.RequiredPorts(), ResourceType::kPort);
     transport_.WaitForShips();
   }
   else if (transport_.WaitingForShips()) {
@@ -119,18 +118,16 @@ void Zoo::ProceedWithTransport() {
   }
   else if (transport_.WaitingForTransport()) {
     if (transport_.Arrived()) {
-      Release(snow_manager_.RequiredShips(), ResourceType::kShip);
+      printf("Zoo no. %d requests %d ports\n", rank_, snow_manager_.RequiredPorts());
 
-      // Move both lines to after unload.
-      printf("Zoo no. %d got transport of %d ships of snow! Releasing.\n", rank_, snow_manager_.RequiredShips());
-      transport_.SetIdle();
+      Request(snow_manager_.RequiredPorts(), ResourceType::kPort);
+
+      transport_.WaitForPorts();
     }
   }
   else if (transport_.WaitingForPorts()) {
-    // AMAN
     if (communication_.TestAll(Tag::kReply)) {
       ProcessChanges();
-
       if (resource_amount_[ResourceType::kPort] < snow_manager_.RequiredPorts())
         return;
       if (resource_amount_[ResourceType::kPort] > Configuration::MaxPorts)
@@ -144,14 +141,15 @@ void Zoo::ProceedWithTransport() {
 
       ReplyQueuedMessages();
 
-      transport_.StartTransport();
+      transport_.StartUnload();
     }
   }
   else if (transport_.WaitingForUnload()) {
-    // AMAN
-    if (transport_.Arrived()) {
+    printf("Zoo no. %d got transport of %d ships of snow! Releasing.\n", rank_, snow_manager_.RequiredShips());
 
-    }
+    Release(snow_manager_.RequiredShips(), ResourceType::kShip);
+    Release(snow_manager_.RequiredPorts(), ResourceType::kPort);
+    transport_.SetIdle();
   }
 }
 
