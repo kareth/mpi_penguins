@@ -26,7 +26,7 @@ class Resource {
 
     int timestamp_;
     int amount_;
-    Message requests_[Configuration::MaxZoo];
+    Message* requests_[4];
 
   private:
     std::set<Message> queue_;

@@ -12,6 +12,7 @@ Message::Message() {
 Message::Message(int rank, int type) : Message() {
   data_[int(Field::kRank)] = rank;
   data_[int(Field::kType)] = type;
+  //printf("Constructed shit\n");
 }
 
 Message::Message(int rank, int timestamp, int quantity, int type) {
@@ -19,6 +20,7 @@ Message::Message(int rank, int timestamp, int quantity, int type) {
   data_[int(Field::kTimestamp)] = timestamp;
   data_[int(Field::kQuantity)] = quantity;
   data_[int(Field::kType)] = type;
+  //printf("Constructed well\n");
 }
 
 }  // namespace penguins

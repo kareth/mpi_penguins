@@ -4,7 +4,7 @@ namespace penguins {
 
 
 void Communication::Receive(int source, Message* msg, const Tag& tag) {
-  MPI::COMM_WORLD.Iprobe(source, int(tag));
+  //MPI::COMM_WORLD.Iprobe(source, int(tag));
 
   *Request(source, tag) = MPI::COMM_WORLD.Irecv(
     msg->data(), msg->length(), MPI_INT, source, int(tag));

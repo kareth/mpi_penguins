@@ -11,10 +11,18 @@ void Zoo::Run() {
 
   srand(rand() + rank_);
 
+  for (int i = 0; i < 4; i++) {
+    ship_.requests_[i] = requests_[i];
+    port_.requests_[i] = requests_[i];
+  }
+
 //  communication_.ReceiveAll(port_.requests_, Tag::kRequest);
-  communication_.ReceiveAll(ship_.requests_, Tag::kRequest);
 //  communication_.ReceiveAll(port_.requests_, Tag::kReply);
-  communication_.ReceiveAll(ship_.requests_, Tag::kReply);
+//
+  communication_.ReceiveAll(ship_.requests_[int(Tag::kRequest)], Tag::kRequest);
+  communication_.ReceiveAll(ship_.requests_[int(Tag::kReply)], Tag::kReply);
+  communication_.ReceiveAll(ship_.requests_[int(Tag::kAcquire)], Tag::kAcquire);
+  communication_.ReceiveAll(ship_.requests_[int(Tag::kRelease)], Tag::kRelease);
   MainLoop();
 }
 
@@ -40,14 +48,17 @@ void Zoo::ProceedWithTransport() {
   }
   else if (transport_.WaitingForShips()) {
     if (communication_.TestAll(Tag::kReply)) {
+      //printf("yay\n");
       ship_.ProcessChanges(communication_);
       // Important:
       // If there is not enough ships, just wait, they will release soon
       if (ship_.amount_ < snow_manager_.RequiredShips())
         return;
+      //printf("meh %d %d\n",ship_.amount_, Configuration::MaxShips );
       // check for ships overflow
       if (ship_.amount_ > Configuration::MaxShips)
         return;
+      //printf("meh x 2\n");
 
       printf("Zoo no. %d acquired %d ships!\n", rank_, snow_manager_.RequiredShips());
       Message acquire(rank_, time(nullptr), snow_manager_.RequiredShips(), ResourceType::kShip);

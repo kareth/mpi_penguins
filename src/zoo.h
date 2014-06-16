@@ -27,6 +27,8 @@ class Zoo {
 
   Communication communication_;
 
+  Message requests_[4][Configuration::MaxZoo];
+
   Port port_;
   Ship ship_;
 
