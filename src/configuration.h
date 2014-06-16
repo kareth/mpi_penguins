@@ -6,6 +6,8 @@ namespace penguins {
 namespace Configuration {
   const int MaxShips = 15;
   const int MaxPorts = 10;
+
+  const int Years = 4;
 }
 
 }
