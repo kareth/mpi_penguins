@@ -8,6 +8,12 @@
 
 namespace penguins {
 
+enum ResourceType {
+  kShip,
+  kPort
+};
+#define ResourceTypeCount 2
+
 class Zoo {
  public:
   void Run();
@@ -16,14 +22,16 @@ class Zoo {
   const static int kMaxZoo = 100;
 
   void MainLoop();
-  void ReleaseResources();
-  void RequestResources();
+
+  void Request(int quantity, ResourceType type);
+  void Release(int quantity, ResourceType type);
+
   void ReplyToRequests();
   void ProceedWithTransport();
   void ReplyQueuedMessages();
 
   void ProcessChanges();
-  
+
   bool ShouldWaitFor(const Message& message);
 
   Communication communication_;
@@ -34,11 +42,10 @@ class Zoo {
 
   int rank_;
 
-  // TODO aman move it, make it param, move to some class that allow checking MaxShips and so on
-  int ships_ = 10;
+//  int ships_ = 10;
 
-  // TODO aman move it 
-  int ship_request_timestamp_;
+  int resource_amount_[ResourceTypeCount] = {10, 10};
+  int resource_timestamp_[ResourceTypeCount];
 
   Transport transport_;
 

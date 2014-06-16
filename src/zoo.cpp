@@ -16,9 +16,9 @@ void Zoo::Run() {
 
 void Zoo::MainLoop() {
   while (true) {
-    usleep(100000);  // TODO unnecessary with introduction of random delays
     ProcessChanges();
     ProceedWithTransport();    // Once we got access to ships
+    usleep(1000000);  // TODO unnecessary with introduction of random delays
     ReplyToRequests();
   }
 }
@@ -26,14 +26,14 @@ void Zoo::MainLoop() {
 void Zoo::ProcessChanges() {
   for (int i = 0; i < communication_.Size(); i++) {
     if (i != rank_ && communication_.Test(i, Tag::kRelease)) {
-      ships_ += requests_[i].field(Field::kQuantity);
+      resource_amount_[ResourceType::kShip] += requests_[i].field(Field::kQuantity);
       communication_.Receive(i, &requests_[i], Tag::kRelease);
     }
   }
 
   for (int i = 0; i < communication_.Size(); i++) {
     if (i != rank_ && communication_.Test(i, Tag::kAcquire)) {
-      ships_ -= requests_[i].field(Field::kQuantity);
+      resource_amount_[ResourceType::kShip] -= requests_[i].field(Field::kQuantity);
       communication_.Receive(i, &requests_[i], Tag::kAcquire);
     }
   }
@@ -73,15 +73,15 @@ void Zoo::ReplyQueuedMessages() {
 }
 
 bool Zoo::ShouldWaitFor(const Message& message) {
-  if (ship_request_timestamp_ > message.field(Field::kTimestamp)) return true;
-  if (ship_request_timestamp_ < message.field(Field::kTimestamp)) return false;
+  if (resource_timestamp_[message.field(Field::kType)] > message.field(Field::kTimestamp)) return true;
+  if (resource_timestamp_[message.field(Field::kType)] < message.field(Field::kTimestamp)) return false;
   return rank_ < message.field(Field::kRank);
 }
 
 void Zoo::ProceedWithTransport() {
   if (transport_.Idle()) {
     printf("Zoo no. %d are requesting %d ships!\n", rank_, snow_manager_.RequiredShips());
-    RequestResources();
+    Request(snow_manager_.RequiredShips(), ResourceType::kShip);
     transport_.WaitForShips();
   }
   else if (transport_.WaitingForShips()) {
@@ -95,7 +95,7 @@ void Zoo::ProceedWithTransport() {
 
       // Important:
       // If there is not enough ships, just wait, they will release soon
-      if (ships_ < snow_manager_.RequiredShips())
+      if (resource_amount_[ResourceType::kShip] < snow_manager_.RequiredShips())
         return;
       // TODO check if ships <= MaxShips (noobish deadlock possibility)
 
@@ -103,7 +103,7 @@ void Zoo::ProceedWithTransport() {
       Message acquire(rank_, time(nullptr), snow_manager_.RequiredShips(), 0);
       communication_.SendAll(acquire, Tag::kAcquire);
 
-      ships_ -= snow_manager_.RequiredShips();
+      resource_amount_[ResourceType::kShip] -= snow_manager_.RequiredShips();
 
       ReplyQueuedMessages();
 
@@ -112,7 +112,7 @@ void Zoo::ProceedWithTransport() {
   }
   else if (transport_.WaitingForTransport()) {
     if (transport_.Arrived()) {
-      ReleaseResources();
+      Release(snow_manager_.RequiredShips(), ResourceType::kShip);
 
       // Move both lines to after unload.
       printf("Zoo no. %d got transport of %d ships of snow! Releasing.\n", rank_, snow_manager_.RequiredShips());
@@ -127,24 +127,22 @@ void Zoo::ProceedWithTransport() {
   }
 }
 
-// TODO add type and amount here. its shipps by far
-void Zoo::RequestResources() {
+void Zoo::Request(int quantity, ResourceType type) {
   if (!snow_manager_.NeedNow()) return;
 
   int timestamp = time(nullptr);
-  Message msg(communication_.Rank(), timestamp, snow_manager_.RequiredShips(), 0); // 0 - first resource type?
+  Message msg(communication_.Rank(), timestamp, quantity, type); // 0 - first resource type?
   communication_.SendAll(msg, Tag::kRequest);
 
   snow_manager_.Requested();
-  ship_request_timestamp_ = timestamp;
+  resource_timestamp_[type] = timestamp;
 }
 
-// TODO add type and amount here. its shipps by far
-void Zoo::ReleaseResources() {
-  Message release(rank_, time(nullptr), snow_manager_.RequiredShips(), 0);
+void Zoo::Release(int quantity, ResourceType type) {
+  Message release(rank_, time(nullptr), quantity, type);
   communication_.SendAll(release, Tag::kRelease);
 
-  ships_ += snow_manager_.RequiredShips();
+  resource_amount_[type] += quantity;
 
   snow_manager_.Received();
 }
