@@ -18,22 +18,22 @@ void Zoo::MainLoop() {
   while (true) {
     ProcessChanges();
     ProceedWithTransport();    // Once we got access to ships
-    usleep(1000000);  // TODO unnecessary with introduction of random delays
+    usleep(100000 * (rand() % 10 + 1));
     ReplyToRequests();
   }
 }
 
 void Zoo::ProcessChanges() {
   for (int i = 0; i < communication_.Size(); i++) {
-    if (i != rank_ && communication_.Test(i, Tag::kRelease)) {
-      resource_amount_[ResourceType::kShip] += requests_[i].field(Field::kQuantity);
+    if (i != rank_ && communication_.Test(i, Tag::kRelease) && requests_[i].field(Field::kType) != -1) {
+      resource_amount_[requests_[i].field(Field::kType)] += requests_[i].field(Field::kQuantity);
       communication_.Receive(i, &requests_[i], Tag::kRelease);
     }
   }
 
   for (int i = 0; i < communication_.Size(); i++) {
-    if (i != rank_ && communication_.Test(i, Tag::kAcquire)) {
-      resource_amount_[ResourceType::kShip] -= requests_[i].field(Field::kQuantity);
+    if (i != rank_ && communication_.Test(i, Tag::kAcquire) && requests_[i].field(Field::kType) != -1) {
+      resource_amount_[requests_[i].field(Field::kType)] -= requests_[i].field(Field::kQuantity);
       communication_.Receive(i, &requests_[i], Tag::kAcquire);
     }
   }
@@ -121,9 +121,28 @@ void Zoo::ProceedWithTransport() {
   }
   else if (transport_.WaitingForPorts()) {
     // AMAN
+    if (communication_.TestAll(Tag::kReply)) {
+      ProcessChanges();
+
+      if (resource_amount_[ResourceType::kPort] < snow_manager_.RequiredPorts())
+        return;
+
+      printf("Zoo no. %d acquired %d ports!\n", rank_, snow_manager_.RequiredPorts());
+      Message acquire(rank_, time(nullptr), snow_manager_.RequiredPorts(), 0);
+      communication_.SendAll(acquire, Tag::kAcquire);
+
+      resource_amount_[ResourceType::kPort] -= snow_manager_.RequiredPorts();
+
+      ReplyQueuedMessages();
+
+      transport_.StartTransport();
+    }
   }
   else if (transport_.WaitingForUnload()) {
     // AMAN
+    if (transport_.Arrived()) {
+
+    }
   }
 }
 

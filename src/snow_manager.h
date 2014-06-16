@@ -8,6 +8,8 @@ class SnowManager {
   // TODO aman move it, make it randomized
   int RequiredShips() { return 5; }
 
+  int RequiredPorts() { return 4; }
+
   // TODO aman make it param or random - this is time between consecutive transports (one per year)
   bool NeedNow() { return !waiting_; }
 

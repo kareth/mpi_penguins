@@ -42,8 +42,6 @@ class Zoo {
 
   int rank_;
 
-//  int ships_ = 10;
-
   int resource_amount_[ResourceTypeCount] = {10, 10};
   int resource_timestamp_[ResourceTypeCount];
 
