@@ -13,7 +13,7 @@ OBJ_DIR = bin
 SRC_DIR = src
 
 MAIN_SRCS = main.cpp
-ZOO_LIB_SRCS = zoo.cpp communication.cpp message.cpp
+ZOO_LIB_SRCS = zoo.cpp communication.cpp message.cpp resource.cpp
 
 MAIN_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(MAIN_SRCS:.cpp=.o)))
 ZOO_LIB_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(ZOO_LIB_SRCS:.cpp=.o)))

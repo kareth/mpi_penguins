@@ -11,6 +11,8 @@ namespace Configuration {
   const int MinUnloadingTime = 1;
   const int MaxUnloadingTime = 3;
 
+  const int MaxZoo = 100;
+
   const int Years = 4;
 }
 
