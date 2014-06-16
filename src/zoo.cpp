@@ -18,7 +18,10 @@ void Zoo::MainLoop() {
   while (true) {
     ProcessChanges();
     ProceedWithTransport();    // Once we got access to ships
+
+    // unloading
     usleep(100000 * (rand() % 10 + 1));
+
     ReplyToRequests();
   }
 }
@@ -80,8 +83,10 @@ bool Zoo::ShouldWaitFor(const Message& message) {
 
 void Zoo::ProceedWithTransport() {
   if (transport_.Idle()) {
-    printf("Zoo no. %d are requesting %d ships!\n", rank_, snow_manager_.RequiredShips());
+    snow_manager_.Next();
+    printf("Zoo #%d requests:\n  %d ships\n  %d ports\n", rank_, snow_manager_.RequiredShips(), snow_manager_.RequiredPorts());
     Request(snow_manager_.RequiredShips(), ResourceType::kShip);
+    Request(snow_manager_.RequiredPorts(), ResourceType::kPort);
     transport_.WaitForShips();
   }
   else if (transport_.WaitingForShips()) {
@@ -97,10 +102,12 @@ void Zoo::ProceedWithTransport() {
       // If there is not enough ships, just wait, they will release soon
       if (resource_amount_[ResourceType::kShip] < snow_manager_.RequiredShips())
         return;
-      // TODO check if ships <= MaxShips (noobish deadlock possibility)
+      // check for ships overflow
+      if (resource_amount_[ResourceType::kShip] > Configuration::MaxShips)
+        return;
 
       printf("Zoo no. %d acquired %d ships!\n", rank_, snow_manager_.RequiredShips());
-      Message acquire(rank_, time(nullptr), snow_manager_.RequiredShips(), 0);
+      Message acquire(rank_, time(nullptr), snow_manager_.RequiredShips(), ResourceType::kShip);
       communication_.SendAll(acquire, Tag::kAcquire);
 
       resource_amount_[ResourceType::kShip] -= snow_manager_.RequiredShips();
@@ -126,9 +133,11 @@ void Zoo::ProceedWithTransport() {
 
       if (resource_amount_[ResourceType::kPort] < snow_manager_.RequiredPorts())
         return;
+      if (resource_amount_[ResourceType::kPort] > Configuration::MaxPorts)
+        return;
 
       printf("Zoo no. %d acquired %d ports!\n", rank_, snow_manager_.RequiredPorts());
-      Message acquire(rank_, time(nullptr), snow_manager_.RequiredPorts(), 0);
+      Message acquire(rank_, time(nullptr), snow_manager_.RequiredPorts(), ResourceType::kPort);
       communication_.SendAll(acquire, Tag::kAcquire);
 
       resource_amount_[ResourceType::kPort] -= snow_manager_.RequiredPorts();
@@ -150,7 +159,7 @@ void Zoo::Request(int quantity, ResourceType type) {
   if (!snow_manager_.NeedNow()) return;
 
   int timestamp = time(nullptr);
-  Message msg(communication_.Rank(), timestamp, quantity, type); // 0 - first resource type?
+  Message msg(communication_.Rank(), timestamp, quantity, type);
   communication_.SendAll(msg, Tag::kRequest);
 
   snow_manager_.Requested();

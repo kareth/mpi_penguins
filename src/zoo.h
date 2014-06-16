@@ -1,6 +1,7 @@
 #ifndef ZOO_H_
 #define ZOO_H_
 
+#include "configuration.h"
 #include "communication.h"
 #include "snow_manager.h"
 #include "transport.h"
