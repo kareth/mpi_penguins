@@ -11,9 +11,9 @@ void Zoo::Run() {
 
   srand(rand() + rank_);
 
-  communication_.ReceiveAll(port_.requests_, Tag::kRequest);
+//  communication_.ReceiveAll(port_.requests_, Tag::kRequest);
   communication_.ReceiveAll(ship_.requests_, Tag::kRequest);
-  communication_.ReceiveAll(port_.requests_, Tag::kReply);
+//  communication_.ReceiveAll(port_.requests_, Tag::kReply);
   communication_.ReceiveAll(ship_.requests_, Tag::kReply);
   MainLoop();
 }
@@ -26,7 +26,7 @@ void Zoo::MainLoop() {
     ProceedWithTransport();    // Once we got access to ships
 
     ship_.ReplyToRequests(communication_);
-    port_.ReplyToRequests(communication_);
+//    port_.ReplyToRequests(communication_);
   }
 }
 
