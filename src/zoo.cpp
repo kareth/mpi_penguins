@@ -61,7 +61,7 @@ void Zoo::ProceedWithTransport() {
       //printf("meh x 2\n");
 
       printf("Zoo no. %d acquired %d ships!\n", rank_, snow_manager_.RequiredShips());
-      Message acquire(rank_, time(nullptr), snow_manager_.RequiredShips(), ResourceType::kShip);
+      Message acquire(rank_, communication_.Time(), snow_manager_.RequiredShips(), ResourceType::kShip);
       communication_.SendAll(acquire, Tag::kAcquire);
 
       ship_.amount_ -= snow_manager_.RequiredShips();
@@ -89,7 +89,7 @@ void Zoo::ProceedWithTransport() {
         return;
 
       printf("Zoo no. %d acquired %d ports!\n", rank_, snow_manager_.RequiredPorts());
-      Message acquire(rank_, time(nullptr), snow_manager_.RequiredPorts(), ResourceType::kPort);
+      Message acquire(rank_, communication_.Time(), snow_manager_.RequiredPorts(), ResourceType::kPort);
       communication_.SendAll(acquire, Tag::kAcquire);
 
       port_.amount_ -= snow_manager_.RequiredPorts();

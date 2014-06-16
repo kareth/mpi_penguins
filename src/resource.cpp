@@ -3,7 +3,7 @@
 namespace penguins {
 
 void Resource::Request(int quantity, Communication& communication) {
-  int timestamp = time(nullptr);
+  int timestamp = communication.Time();
   Message request(communication.Rank(), timestamp, quantity, type_);
   communication.SendAll(request, Tag::kRequest);
 
@@ -11,7 +11,7 @@ void Resource::Request(int quantity, Communication& communication) {
 }
 
 void Resource::Release(int quantity, Communication& communication) {
-  Message release(communication.Rank(), time(nullptr), quantity, type_);
+  Message release(communication.Rank(), communication.Time(), quantity, type_);
   communication.SendAll(release, Tag::kRelease);
 
   amount_ += quantity;

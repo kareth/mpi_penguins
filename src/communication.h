@@ -15,6 +15,7 @@ enum class Tag {
 
 class Communication {
  public:
+  Communication();
   void Receive(int source, Message* message, const Tag& tag);
   void ReceiveAll(Message* message, const Tag& tag);
 
@@ -27,12 +28,15 @@ class Communication {
   int Rank();
   int Size();
 
+  int Time() { return time_; };
+
  private:
   MPI::Request* Request(int source, const Tag& tag) { return &requests_[int(tag)][source]; }
 
   static const int kMaxTags = 4;
   static const int kMaxProcesses = 100;
 
+  int time_ = 0;
   MPI::Request requests_[kMaxTags][kMaxProcesses];
 };
 

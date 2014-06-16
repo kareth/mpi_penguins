@@ -2,12 +2,17 @@
 
 namespace penguins {
 
+Communication::Communication() {
+  time_ = Rank();
+}
 
 void Communication::Receive(int source, Message* msg, const Tag& tag) {
   //MPI::COMM_WORLD.Iprobe(source, int(tag));
 
   *Request(source, tag) = MPI::COMM_WORLD.Irecv(
     msg->data(), msg->length(), MPI_INT, source, int(tag));
+
+  time_ = std::max(time_, msg->field(Field::kTimestamp))+1;
 }
 
 void Communication::ReceiveAll(Message* msgs, const Tag& tag) {
